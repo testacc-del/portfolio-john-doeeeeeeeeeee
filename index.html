@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>John Doe - Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              "space-grotesk": ["Space Grotesk", "sans-serif"],
+            },
+            animation: {
+              "blur-in": "blurIn 0.7s ease-out forwards",
+            },
+            keyframes: {
+              blurIn: {
+                "0%": { filter: "blur(5px)", opacity: "0" },
+                "100%": { filter: "blur(0)", opacity: "1" },
+              },
+            },
+            colors: {
+              white: "#fff",
+              black: "#000",
+              gray: {
+                100: "#f5f5f5",
+                200: "#e5e5e5",
+                300: "#d4d4d4",
+                400: "#a3a3a3",
+                500: "#737373",
+                600: "#525252",
+                700: "#404040",
+                800: "#262626",
+                900: "#181818",
+              },
+            },
+          },
+        },
+        darkMode: "selector",
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="canonical" href="" id="canonical-link" />
+    <style>
+      .text-dynamic-primary {
+        color: var(--primary-color);
+      }
+    </style>
+  </head>
+  <body
+    class="bg-white text-gray-800 dark:bg-[#18181b] dark:text-gray-300 font-space-grotesk antialiased transition-colors duration-300"
+  >
+    <div id="app"></div>
+    <script>
+      let portfolioData = null;
+
+      async function loadPortfolioData() {
+        try {
+          const response = await fetch("./portfolio-data.json");
+          if (!response.ok) {
+            throw new Error("HTTP error! status: " + response.status);
+          }
+          portfolioData = await response.json();
+          return portfolioData;
+        } catch (error) {
+          console.error("Error loading portfolio data:", error);
+          document.getElementById("app").innerHTML =
+            '<div class="text-red-500 p-8">Error loading portfolio data. Please make sure portfolio-data.json exists.</div>';
+          throw error;
+        }
+      }
+
+      function getIconSVG(name) {
+        const icons = {
+          linkedin:
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/></svg>',
+          github:
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>',
+          twitter:
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865l8.875 11.633Z"/></svg>',
+          "arrow-up-right":
+            '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0v-6z"/></svg>',
+          repo: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>',
+          sun: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>',
+          moon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>',
+        };
+        return icons[name] || "";
+      }
+
+      function createSectionDivider(title) {
+        return `
+    <div class="flex items-center my-8">
+      <div class="flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+      <h2 class="font-bold text-xl text-gray-900 dark:text-white mx-4">${title}</h2>
+      <div class="flex-grow border-t border-gray-300 dark:border-gray-700"></div>
+    </div>
+  `;
+      }
+
+      function generateInitials(name) {
+        const words = name.trim().split(" ");
+        if (words.length === 1) {
+          return words[0].charAt(0).toUpperCase();
+        } else {
+          return words
+            .slice(0, 2)
+            .map((word) => word.charAt(0).toUpperCase())
+            .join("");
+        }
+      }
+
+      function ensureUrl(url) {
+        if (!url) return url;
+        if (!url.match(/^https?:\/\//)) {
+          return `https://${url}`;
+        }
+        return url;
+      }
+
+      function setTheme(theme) {
+        localStorage.setItem("theme", theme);
+        if (theme === "dark") {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+        const toggle = document.getElementById("theme-toggle");
+        if (toggle) {
+          toggle.innerHTML = getIconSVG(theme === "dark" ? "sun" : "moon");
+        }
+      }
+
+      function setupTheme() {
+        const savedTheme = localStorage.getItem("theme");
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)"
+        ).matches;
+        const defaultTheme = savedTheme || (prefersDark ? "dark" : "light");
+        setTheme(defaultTheme);
+
+        const toggle = document.getElementById("theme-toggle");
+        if (toggle) {
+          toggle.addEventListener("click", () => {
+            const currentTheme = localStorage.getItem("theme") || "light";
+            setTheme(currentTheme === "dark" ? "light" : "dark");
+          });
+        }
+      }
+
+      function setMetaTags(data) {
+        const pageTitle = `${data.settings.name} - ${data.settings.title}`;
+        const pageDescription = data.settings.summary;
+        const pageImage = data.settings.profileImage;
+        const pageUrl = window.location.href;
+
+        document.title = pageTitle;
+
+        const createOrUpdateMeta = (
+          property,
+          content,
+          isNameAttribute = false
+        ) => {
+          const attribute = isNameAttribute ? "name" : "property";
+          let element = document.querySelector(
+            `meta[${attribute}="${property}"]`
+          );
+          if (!element) {
+            element = document.createElement("meta");
+            element.setAttribute(attribute, property);
+            document.head.appendChild(element);
+          }
+          element.setAttribute("content", content);
+        };
+
+        createOrUpdateMeta("description", pageDescription, true);
+
+        createOrUpdateMeta("og:title", pageTitle);
+        createOrUpdateMeta("og:description", pageDescription);
+        createOrUpdateMeta("og:image", pageImage);
+        createOrUpdateMeta("og:url", pageUrl);
+        createOrUpdateMeta("og:type", "website");
+
+        createOrUpdateMeta("twitter:card", "summary_large_image", true);
+        createOrUpdateMeta("twitter:title", pageTitle, true);
+        createOrUpdateMeta("twitter:description", pageDescription, true);
+        createOrUpdateMeta("twitter:image", pageImage, true);
+
+        const canonical = document.getElementById("canonical-link");
+        if (canonical) {
+          canonical.setAttribute("href", pageUrl.split("#")[0]);
+        }
+      }
+
+      async function renderPortfolio() {
+        try {
+          const data = await loadPortfolioData();
+
+          setMetaTags(data);
+
+          let socialLinksHTML = "";
+          if (data.sections.social && data.sections.social.enabled) {
+            socialLinksHTML = data.sections.social.items
+              .map(
+                (item) => `
+        <a href="${ensureUrl(
+          item.url
+        )}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+          ${getIconSVG(item.platform)}
+          <span>${
+            item.platform.charAt(0).toUpperCase() + item.platform.slice(1)
+          }</span>
+        </a>`
+              )
+              .join('<span class="text-gray-500">/</span>');
+          }
+
+          let headerHTML = "";
+          if (data.navigation && data.navigation.enabled) {
+            const navLinks = data.navigation.items
+              .map(
+                (item) => `
+        <a href="${item.url}" class="px-3 py-2 text-sm rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">${item.name}</a>
+      `
+              )
+              .join("");
+
+            headerHTML = `
+        <header class="hidden md:flex fixed top-4 left-1/2 -translate-x-1/2 z-50">
+          <nav class="flex items-center gap-4 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-lg rounded-full px-4 py-2">
+            <div class="flex items-center justify-center w-8 h-8 bg-gray-800/80 dark:bg-gray-200/80 text-gray-200 dark:text-gray-800 rounded-full font-bold text-sm tracking-wider">
+              ${generateInitials(data.settings.name)}
+            </div>
+            ${navLinks}
+          </nav>
+        </header>
+
+        <div id="mobile-sidebar" class="fixed top-0 left-0 h-full w-64 bg-white dark:bg-gray-900 shadow-lg transform -translate-x-full transition-transform z-50" role="dialog" aria-modal="true" aria-hidden="true" tabindex="-1">
+          <div class="p-6 pt-20">
+            <nav class="flex flex-col gap-4">
+              ${data.navigation.items
+                .map(
+                  (item) => `
+                <a href="${item.url}" class="text-lg hover:text-gray-900 dark:hover:text-white transition-colors">${item.name}</a>
+              `
+                )
+                .join("")}
+            </nav>
+          </div>
+        </div>
+
+        <button id="hamburger-menu" class="md:hidden fixed top-4 left-4 z-[60] p-2 rounded-md bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm" aria-label="Open menu" aria-controls="mobile-sidebar" aria-expanded="false">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      `;
+          }
+
+          let ctaButtonsHTML = "";
+          if (data.sections.hero && data.sections.hero.enabled) {
+            ctaButtonsHTML = data.sections.hero.ctaButtons
+              .map(
+                (btn) => `
+        <a href="${btn.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+          ${btn.text}
+        </a>`
+              )
+              .join("");
+          }
+
+          let skillsHTML = "";
+          if (data.sections.about && data.sections.about.enabled) {
+            if (
+              data.sections.about.skills &&
+              data.sections.about.skills.enabled
+            ) {
+              skillsHTML = `
+          <div class="mt-16">
+              <h2 class="font-bold text-xl text-gray-900 dark:text-white mb-6">${
+                data.sections.about.skills.title
+              }</h2>
+              <div class="flex flex-wrap gap-3">
+                  ${data.sections.about.skills.items
+                    .map(
+                      (skill) =>
+                        `<span class="text-sm px-3 py-1 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-mono">${skill}</span>`
+                    )
+                    .join("")}
+              </div>
+          </div>
+        `;
+            }
+          }
+
+          let projectsHTML = "";
+          if (data.sections.projects && data.sections.projects.enabled) {
+            projectsHTML = `
+        <div class="mt-16" id="projects">
+          ${createSectionDivider(data.sections.projects.title)}
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+            ${data.sections.projects.items
+              .map(
+                (project) => `
+            <div class="mb-8">
+              <h3 class="font-medium text-lg text-gray-900 dark:text-white">${
+                project.title
+              }</h3>
+              <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-3">${
+                project.description
+              }</p>
+              <div class="flex flex-wrap gap-2 mb-4">
+                ${project.tags
+                  .map(
+                    (tag) =>
+                      `<span class="text-xs px-2 py-1 rounded bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-mono">${tag}</span>`
+                  )
+                  .join("")}
+              </div>
+              <div class="flex items-center gap-4 text-sm">
+                ${
+                  project.previewUrl
+                    ? `<a href="${ensureUrl(
+                        project.previewUrl
+                      )}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors underline">
+                       <span>Preview</span>
+                     </a>`
+                    : ""
+                }
+                ${
+                  project.repoUrl
+                    ? `<a href="${ensureUrl(
+                        project.repoUrl
+                      )}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                       ${getIconSVG("repo")}
+                       <span>View Repo</span>
+                     </a>`
+                    : ""
+                }
+              </div>
+            </div>
+          `
+              )
+              .join("")}
+          </div>
+        </div>
+      `;
+          }
+
+          let experienceHTML = "";
+          if (data.sections.experience && data.sections.experience.enabled) {
+            const experienceItemsHTML = data.sections.experience.items
+              .map(
+                (item) => `
+        <div class="mb-8">
+          <h3 class="font-medium text-lg text-gray-900 dark:text-white">${item.position}</h3>
+          <p class="text-gray-600 dark:text-gray-400 text-base mb-2">${item.company}</p>
+          <p class="text-gray-500 dark:text-gray-500 text-sm font-mono">${item.period}</p>
+          <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">${item.description}</p>
+        </div>
+      `
+              )
+              .join("");
+
+            experienceHTML = `
+        <div class="mt-16" id="experience">
+            ${createSectionDivider(data.sections.experience.title)}
+            ${experienceItemsHTML}
+        </div>
+      `;
+          }
+
+          let educationHTML = "";
+          if (data.sections.education && data.sections.education.enabled) {
+            const educationItemsHTML = data.sections.education.items
+              .map(
+                (item) => `
+        <div class="mb-6">
+            <div class="flex justify-between items-baseline mb-1">
+                <h3 class="font-medium text-lg text-gray-900 dark:text-white">${item.degree}</h3>
+                <div class="text-sm text-gray-500 dark:text-gray-500 font-mono">${item.period}</div>
+            </div>
+            <p class="text-gray-600 dark:text-gray-400 text-base">${item.institution}</p>
+        </div>
+      `
+              )
+              .join("");
+
+            educationHTML = `
+        <div class="mt-16" id="education">
+            ${createSectionDivider(data.sections.education.title)}
+            ${educationItemsHTML}
+        </div>
+      `;
+          }
+
+          let achievementsHTML = "";
+          if (
+            data.sections.achievements &&
+            data.sections.achievements.enabled
+          ) {
+            const achievementItemsHTML = data.sections.achievements.items
+              .map(
+                (item) => `
+        <div class="mb-6">
+          <h3 class="font-medium text-lg text-gray-900 dark:text-white">${item.title}</h3>
+          <p class="text-gray-600 dark:text-gray-400 text-sm">${item.description}</p>
+        </div>
+      `
+              )
+              .join("");
+
+            achievementsHTML = `
+        <div class="mt-16" id="achievements">
+          ${createSectionDivider(data.sections.achievements.title)}
+          ${achievementItemsHTML}
+        </div>
+      `;
+          }
+
+          let contactHTML = "";
+          if (data.sections.contact && data.sections.contact.enabled) {
+            const contactItems = [
+              {
+                value: data.sections.contact.email,
+                link: `mailto:${data.sections.contact.email}`,
+              },
+              {
+                value: data.sections.contact.phone,
+                link: `tel:${data.sections.contact.phone}`,
+              },
+              {
+                value: data.sections.contact.location,
+                link: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                  data.sections.contact.location
+                )}`,
+              },
+            ]
+              .filter((item) => item.value)
+              .map(
+                (item) =>
+                  `<a href="${item.link}" target="_blank" rel="noopener noreferrer" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors underline w-fit">${item.value}</a>`
+              )
+              .join("");
+
+            contactHTML = `
+        <div class="mt-8" id="contact">
+           ${createSectionDivider(data.sections.contact.title)}
+            <div class="flex flex-col items-center gap-4 text-sm">
+                <div class="flex flex-row flex-wrap justify-center gap-x-8 gap-y-2">
+                  ${contactItems}
+                </div>
+                <div class="flex items-center gap-4 mt-4">
+                  ${socialLinksHTML}
+                </div>
+            </div>
+        </div>
+      `;
+          }
+
+          const content = `${headerHTML}
+    <div class="flex flex-col min-h-screen">
+      <div class="fixed top-4 right-4 z-50">
+          <button id="theme-toggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white"></button>
+      </div>
+      <main class="flex-grow max-w-4xl mx-auto px-6 pt-40 pb-8 animate-blur-in">
+        <header class="grid md:grid-cols-3 gap-12 items-center mb-16">
+            <div class="md:col-span-1 flex justify-center">
+              <img src="${data.settings.profileImage}" alt="Profile" class="rounded-full w-40 h-40 object-cover border-4 border-gray-200 dark:border-gray-700" loading="lazy">
+            </div>
+            <div class="md:col-span-2">
+                <h1 class="text-3xl font-medium text-gray-900 dark:text-white">Hey, I'm ${data.settings.name}</h1>
+                <p class="text-lg text-gray-700 dark:text-gray-300 mt-2">${data.settings.title} &bull; ${data.settings.location}</p>
+                 <div class="flex flex-wrap gap-4 mt-6">
+                  ${ctaButtonsHTML}
+                </div>
+            </div>
+        </header>
+
+        <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed my-16">${data.settings.summary}</p>
+        
+        ${skillsHTML}
+        ${projectsHTML}
+        ${experienceHTML}
+        ${educationHTML}
+        ${achievementsHTML}
+        ${contactHTML}
+
+      </main>
+    </div>
+    `;
+
+          document.getElementById("app").innerHTML = content;
+          setupTheme();
+
+          try {
+            const personSchema = {
+              "@context": "https://schema.org",
+              "@type": "Person",
+              name: data.settings.name,
+              jobTitle: data.settings.title,
+              description: data.settings.summary,
+              image: data.settings.profileImage,
+              url: window.location.href,
+              sameAs: (data.sections.social?.items || []).map((s) =>
+                ensureUrl(s.url)
+              ),
+              address: {
+                "@type": "PostalAddress",
+                streetAddress: data.settings.location,
+              },
+            };
+            const ld = document.createElement("script");
+            ld.type = "application/ld+json";
+            ld.textContent = JSON.stringify(personSchema);
+            document.head.appendChild(ld);
+          } catch (e) {
+            console.warn("JSON-LD injection failed", e);
+          }
+          document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+            anchor.addEventListener("click", function (e) {
+              e.preventDefault();
+              const targetId = this.getAttribute("href");
+              if (targetId === "#") return;
+              const targetElement = document.querySelector(targetId);
+              if (targetElement) {
+                targetElement.scrollIntoView({
+                  behavior: "smooth",
+                });
+              }
+            });
+          });
+
+          const hamburgerMenu = document.getElementById("hamburger-menu");
+          const sidebar = document.getElementById("mobile-sidebar");
+          const mainContent = document.querySelector("main");
+
+          function openSidebar() {
+            sidebar.classList.remove("-translate-x-full");
+            hamburgerMenu.setAttribute("aria-expanded", "true");
+            sidebar.setAttribute("aria-hidden", "false");
+            sidebar.focus();
+          }
+
+          function closeSidebar() {
+            sidebar.classList.add("-translate-x-full");
+            hamburgerMenu.setAttribute("aria-expanded", "false");
+            sidebar.setAttribute("aria-hidden", "true");
+          }
+
+          hamburgerMenu.addEventListener("click", () => {
+            const isOpen = !sidebar.classList.contains("-translate-x-full");
+            if (isOpen) {
+              closeSidebar();
+            } else {
+              openSidebar();
+            }
+          });
+
+          sidebar.querySelectorAll("a").forEach((link) => {
+            link.addEventListener("click", () => {
+              sidebar.classList.add("-translate-x-full");
+            });
+          });
+
+          document.addEventListener("click", (event) => {
+            if (
+              !sidebar.contains(event.target) &&
+              !hamburgerMenu.contains(event.target)
+            ) {
+              closeSidebar();
+            }
+          });
+
+          document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+              closeSidebar();
+              hamburgerMenu.focus();
+            }
+          });
+        } catch (err) {
+          document.getElementById(
+            "app"
+          ).innerHTML = `<div class="text-red-500 p-8">${err}</div>`;
+          console.error(err);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", renderPortfolio);
+
+      const style = document.createElement("style");
+      style.textContent = `
+  .text-dynamic-primary {
+      color: var(--primary-color);
+  }
+`;
+      document.head.append(style);
+    </script>
+  </body>
+</html>
